@@ -198,7 +198,7 @@ nav {
     <li><a href="mp3-media.html">Media</a></li>
     <li><a href="#" class="active">Products</a></li>
   </ul>
-  <a class="nav-cart" href="https://0hiuxa-fs.myshopify.com/cart" target="_blank">Cart</a>
+  <button class="nav-cart" onclick="openCart()">Cart <span id="cart-count"></span></button>
 </nav>
 
 <div class="products-wrap">
@@ -228,7 +228,7 @@ nav {
           <button class="size-btn" onclick="selectSize('work',this)">36</button>
         </div>
       </div>
-      <a class="btn-atc" id="atc-work" href="https://0hiuxa-fs.myshopify.com/products/mp%C7%9D-work-denim" target="_blank">Select Size to Add to Cart</a>
+      <button class="btn-atc" id="atc-work" onclick="addToCart('work')">Select a Size</button>
     </div>
   </div>
 
@@ -256,7 +256,7 @@ nav {
           <button class="size-btn" onclick="selectSize('playa',this)">36</button>
         </div>
       </div>
-      <a class="btn-atc" id="atc-playa" href="https://0hiuxa-fs.myshopify.com/products/mp%C7%9D-player-denim" target="_blank">Select Size to Add to Cart</a>
+      <button class="btn-atc" id="atc-playa" onclick="addToCart('playa')">Select a Size</button>
     </div>
   </div>
 
@@ -266,7 +266,6 @@ nav {
   <a href="https://www.instagram.com/mp3inc/" target="_blank">Instagram</a>
   <a href="https://www.youtube.com/@MP4Mish" target="_blank">YouTube</a>
   <a href="https://open.spotify.com/playlist/5wjrDxEc2YOO9acKqpU4ZJ" target="_blank">Spotify</a>
-  <a href="https://0hiuxa-fs.myshopify.com" target="_blank">Shop</a>
 </div>
 
 <script>
@@ -306,11 +305,99 @@ function goTo(id, idx) {
 function galleryNext(id) { goTo(id, (state[id] + 1) % IMGS[id].length); }
 function galleryPrev(id) { goTo(id, (state[id] - 1 + IMGS[id].length) % IMGS[id].length); }
 
+
+// ── VARIANT IDs ──
+const VARIANTS = {
+  work:  { '30': '41283054469163', '32': '41283054501931', '34': '41283054534699', '36': '41283054567467' },
+  playa: { '30': '41283064889387', '32': '41283064922155', '34': '41283064954923', '36': '41283064987691' }
+};
+
+// ── CART STATE ──
+var cart = [];
+
 function selectSize(id, btn) {
   document.querySelectorAll('#sizes-' + id + ' .size-btn').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
   const atc = document.getElementById('atc-' + id);
   atc.textContent = 'Add to Cart — Size ' + btn.textContent;
+  atc.dataset.size = btn.textContent;
+  atc.dataset.product = id;
+  atc.classList.remove('disabled');
+}
+
+function addToCart(productId) {
+  const atc = document.getElementById('atc-' + productId);
+  const size = atc.dataset.size;
+  if (!size) { showToast('Select a size first'); return; }
+  const variantId = VARIANTS[productId][size];
+  const name = productId === 'work' ? 'Work Denim' : 'Playa Denim';
+
+  const existing = cart.find(i => i.variantId === variantId);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ productId, name, size, variantId, price: 175, qty: 1 });
+  }
+  updateCartUI();
+  openCart();
+  showToast(name + ' Size ' + size + ' added');
+}
+
+function removeFromCart(variantId) {
+  cart = cart.filter(i => i.variantId !== variantId);
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const count = cart.reduce((a, i) => a + i.qty, 0);
+  const total = cart.reduce((a, i) => a + i.price * i.qty, 0);
+  document.getElementById('cart-count').textContent = count > 0 ? count : '';
+  document.getElementById('cart-total').textContent = '$' + total;
+  
+  const itemsEl = document.getElementById('cart-items');
+  if (cart.length === 0) {
+    itemsEl.innerHTML = '<div style="font-size:9px;letter-spacing:3px;color:#ccc;text-transform:uppercase;text-align:center;padding:32px 0;">Empty</div>';
+    document.getElementById('cart-checkout-btn').style.display = 'none';
+  } else {
+    itemsEl.innerHTML = cart.map(item => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #f0f0f0;">
+        <div>
+          <div style="font-size:11px;letter-spacing:1px;color:#000;">${item.name}</div>
+          <div style="font-size:9px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-top:3px;">Size ${item.size} × ${item.qty}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:12px;letter-spacing:1px;color:#000;">$${item.price * item.qty}</span>
+          <button onclick="removeFromCart('${item.variantId}')" style="background:none;border:none;font-size:16px;color:#ccc;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='#000'" onmouseout="this.style.color='#ccc'">×</button>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('cart-checkout-btn').style.display = 'block';
+  }
+}
+
+function openCart() {
+  document.getElementById('cart-drawer').style.transform = 'translateX(0)';
+  document.getElementById('cart-overlay').style.display = 'block';
+}
+
+function closeCart() {
+  document.getElementById('cart-drawer').style.transform = 'translateX(100%)';
+  document.getElementById('cart-overlay').style.display = 'none';
+}
+
+function goToCheckout() {
+  if (cart.length === 0) return;
+  // Build Shopify cart URL with all items
+  const items = cart.map(i => i.variantId + ':' + i.qty).join(',');
+  window.open('https://0hiuxa-fs.myshopify.com/cart/' + items, '_blank');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 2200);
 }
 
 // Touch swipe
@@ -328,5 +415,32 @@ function selectSize(id, btn) {
 buildGallery('work');
 buildGallery('playa');
 </script>
+
+<!-- CART OVERLAY -->
+<div id="cart-overlay" onclick="closeCart()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:199;"></div>
+
+<!-- CART DRAWER -->
+<div id="cart-drawer" style="position:fixed;top:0;right:0;width:360px;height:100vh;background:#fff;border-left:1px solid #eee;z-index:200;transform:translateX(100%);transition:transform 0.3s ease;display:flex;flex-direction:column;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #eee;">
+    <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;">Your Cart</span>
+    <button onclick="closeCart()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;transition:color 0.2s;" onmouseover="this.style.color='#000'" onmouseout="this.style.color='#aaa'">×</button>
+  </div>
+  
+  <div id="cart-items" style="flex:1;overflow-y:auto;padding:0 24px;">
+    <div style="font-size:9px;letter-spacing:3px;color:#ccc;text-transform:uppercase;text-align:center;padding:32px 0;">Empty</div>
+  </div>
+  
+  <div style="padding:20px 24px;border-top:1px solid #eee;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;">
+      <span style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#aaa;">Total</span>
+      <span id="cart-total" style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;">$0</span>
+    </div>
+    <button id="cart-checkout-btn" onclick="goToCheckout()" style="display:none;width:100%;background:#000;color:#fff;border:none;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;padding:16px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#000'">Checkout →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#000;color:#fff;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:10px 24px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:300;"></div>
+
 </body>
 </html>
