@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MP3 — Media</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --g1: #1a6b1a;
+  --g2: #3aa83a;
+  --g3: #7adc7a;
+  --black: #111;
+  --white: #fff;
+  --cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj4KICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI3IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjAwMDAiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgPGxpbmUgeDE9IjAiIHkxPSIxMCIgeDI9IjUiIHkyPSIxMCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogIDxsaW5lIHgxPSIxNSIgeTE9IjEwIiB4Mj0iMjAiIHkyPSIxMCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogIDxsaW5lIHgxPSIxMCIgeTE9IjAiIHgyPSIxMCIgeTI9IjUiIHN0cm9rZT0iI2ZmMDAwMCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8bGluZSB4MT0iMTAiIHkxPSIxNSIgeDI9IjEwIiB5Mj0iMjAiIHN0cm9rZT0iI2ZmMDAwMCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIxIiBmaWxsPSIjZmYwMDAwIi8+Cjwvc3ZnPg==") 10 10, crosshair;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--white);
+  font-family: 'Share Tech Mono', monospace;
+  cursor: var(--cursor);
+  overflow: hidden;
+}
+
+/* scanlines — subtle on white */
+
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 1px solid #eee;
+  background: rgba(255,255,255,0.95);
+}
+.nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 4px;
+  text-decoration: none; color: var(--black);
+}
+.nav-logo .m { color: var(--g1); }
+.nav-logo .p { color: var(--g2); }
+.nav-logo .e { color: var(--g3); }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: #aaa; text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--black); }
+
+/* ── MAIN STAGE ── */
+.stage {
+  width: 100%; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  padding-top: 52px;
+}
+
+/* ── VIDEO CENTER ── */
+.video-wrap {
+  width: min(680px, 60vw);
+  position: relative;
+}
+.video-frame {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 1px solid #eee;
+  background: #000;
+  display: block;
+}
+.video-label {
+  position: absolute; bottom: -24px; left: 0;
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #ccc;
+}
+
+/* ── MP3 PLAYER — top left ── */
+.player {
+  position: fixed;
+  bottom: 60px; left: 24px;
+  width: 240px;
+  background: #fff;
+  border: 1px solid #111;
+  z-index: 50;
+  animation: slideIn 0.5s 0.2s ease both;
+  transition: width 0.2s ease;
+}
+.player.minimised {
+  width: 240px;
+}
+.player.minimised .player-body {
+  display: none;
+}
+.player.minimised #player-drag-handle {
+  border-bottom: none;
+}
+.player.minimised #header-track {
+  display: block !important;
+}
+.player:active { cursor: grabbing; }
+.player-header { cursor: grab; }
+
+
+.player:hover .cd-track-info { opacity: 1; }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.player-header {
+  background: var(--black);
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.player-title {
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: #fff;
+}
+.player-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--g2);
+  animation: blink 2s ease-in-out infinite;
+}
+.player-dot.stopped { animation: none; background: #444; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.player.collapsed .player-body { display: none; }
+.player.collapsed { width: 160px; }
+.player-body { padding: 14px; }
+
+.now-playing {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.np-label { font-size: 8px; letter-spacing: 3px; color: #ccc; text-transform: uppercase; margin-bottom: 4px; }
+.np-title { font-size: 11px; letter-spacing: 1px; color: var(--black); line-height: 1.4; }
+.np-artist { font-size: 9px; color: var(--g1); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
+/* progress */
+.progress-wrap { margin-bottom: 12px; }
+.progress-bg {
+  height: 2px; background: #f0f0f0; cursor: pointer; position: relative; margin-bottom: 6px;
+}
+.progress-fill { height: 100%; background: var(--black); width: 0%; transition: width 0.5s linear; }
+.progress-times { display: flex; justify-content: space-between; font-size: 8px; color: #ccc; letter-spacing: 1px; }
+
+/* controls */
+.controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.ctrl {
+  background: none; border: none; cursor: var(--cursor);
+  font-size: 10px; letter-spacing: 1px; color: #999;
+  font-family: 'Share Tech Mono', monospace;
+  transition: color 0.15s; padding: 4px 6px;
+}
+.ctrl:hover { color: var(--black); }
+.ctrl-play {
+  background: var(--black); color: #fff;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: var(--cursor); transition: background 0.2s;
+  flex-shrink: 0;
+}
+.ctrl-play:hover { background: var(--g1); }
+.play-tri { width:0; height:0; border-top:7px solid transparent; border-bottom:7px solid transparent; border-left:12px solid #fff; margin-left:2px; }
+.pause-bars { display:flex; gap:3px; }
+.pause-bars span { display:block; width:3px; height:14px; background:#fff; }
+
+/* volume */
+.vol-wrap { display: flex; align-items: center; gap: 8px; }
+.vol-label { font-size: 8px; letter-spacing: 2px; color: #ccc; text-transform: uppercase; }
+.vol-slider {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 2px; background: #f0f0f0; outline: none; cursor: var(--cursor);
+}
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%;
+  background: var(--black); cursor: var(--cursor);
+}
+
+/* tracklist */
+.tracklist { border-top: 1px solid #f0f0f0; padding-top: 10px; }
+.track {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid #f8f8f8;
+  cursor: var(--cursor); transition: all 0.15s;
+}
+.track:hover .t-title { color: var(--g1); }
+.track.active .t-title { color: var(--g1); }
+.track.active .t-num { color: var(--g1); }
+.t-num { font-size: 10px; color: #ddd; min-width: 18px; }
+.t-info { flex: 1; min-width: 0; }
+.t-title { font-size: 10px; color: var(--black); letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.t-artist { font-size: 8px; color: #bbb; letter-spacing: 1px; text-transform: uppercase; }
+
+/* ── DOCS BUTTON — bottom right ── */
+
+@keyframes slideIn2 {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+
+
+
+
+
+
+
+
+.doc-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid #f0f0f0;
+  text-decoration: none; color: var(--black);
+  transition: all 0.15s; cursor: var(--cursor);
+}
+.doc-item:hover { border-color: var(--black); background: #f8f8f8; }
+.doc-icon { font-size: 16px; flex-shrink: 0; }
+.doc-info { flex: 1; min-width: 0; }
+.doc-name { font-size: 10px; letter-spacing: 0.5px; color: var(--black); }
+.doc-type { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #bbb; }
+.doc-arrow { font-size: 10px; color: #ccc; }
+
+/* bottom links */
+.bottom-links {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 40px; padding: 14px;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  border-top: 1px solid #f0f0f0;
+  background: rgba(255,255,255,0.9);
+}
+.bottom-links a { color: var(--black); text-decoration: none; transition: opacity 0.2s; }
+.bottom-links a:hover { opacity: 0.3; }
+
+/* Force red crosshair cursor on all interactive elements */
+a, button, input, select, textarea, label,
+[onclick], [role="button"], .track,
+.ctrl, .ctrl-play, .vol-slider,
+#play-btn, #progress-bg {
+  cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj4KICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI3IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjAwMDAiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgPGxpbmUgeDE9IjAiIHkxPSIxMCIgeDI9IjUiIHkyPSIxMCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogIDxsaW5lIHgxPSIxNSIgeTE9IjEwIiB4Mj0iMjAiIHkyPSIxMCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogIDxsaW5lIHgxPSIxMCIgeTE9IjAiIHgyPSIxMCIgeTI9IjUiIHN0cm9rZT0iI2ZmMDAwMCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8bGluZSB4MT0iMTAiIHkxPSIxNSIgeDI9IjEwIiB5Mj0iMjAiIHN0cm9rZT0iI2ZmMDAwMCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIxIiBmaWxsPSIjZmYwMDAwIi8+Cjwvc3ZnPg==") 10 10, crosshair !important;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" style="display:flex;align-items:center;text-decoration:none;"><img src="data:image/png;base64,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" alt="MP3" style="height:40px;width:auto;display:block;"></a>
+  
+  <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#aaa;font-family:'Share Tech Mono',monospace;text-align:center;">
+    Visitors: <span id="visitor-count">0000</span>
+  </div>
+</nav>
+
+<!-- STAGE -->
+<div class="stage">
+
+  <!-- VIDEO CENTER -->
+  <div class="video-wrap">
+    <iframe
+      class="video-frame"
+      src="https://www.youtube.com/embed/4bAol94R2rA?rel=0&modestbranding=1"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+    <span class="video-label">Latest Drop</span>
+  </div>
+
+</div>
+
+<!-- MP3 PLAYER — top left -->
+<div class="player" id="player">
+  <div id="player-drag-handle" style="background:#111;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="pointer-events:none;display:flex;flex-direction:column;gap:2px;">
+      <span class="player-title" style="color:#fff;font-size:9px;letter-spacing:4px;text-transform:uppercase;">MP3 Radio</span>
+      <span id="header-track" style="color:#888;font-size:8px;letter-spacing:2px;text-transform:uppercase;display:none;"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="player-dot stopped" id="player-dot" style="pointer-events:none;"></div>
+      <button id="collapse-btn" style="background:none;border:none;color:#fff;font-size:18px;line-height:1;cursor:pointer;padding:0 4px;z-index:10;" onclick="togglePlayer(event)">−</button>
+    </div>
+  </div>
+  <div class="player-body">
+
+    <div class="now-playing">
+      <div class="np-label">Now Playing</div>
+      <div class="np-title" id="np-title">Can You Forgive Me</div>
+      <div class="np-artist" id="np-artist">MP3</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bg" id="progress-bg">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-times">
+        <span id="time-cur">0:00</span>
+        <span id="time-tot">—:——</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl" onclick="prevTrack()">&#9664;&#9664;</button>
+      <button class="ctrl-play" id="play-btn" onclick="togglePlay()">
+        <div class="play-tri" id="play-icon"></div>
+      </button>
+      <button class="ctrl" onclick="nextTrack()">&#9654;&#9654;</button>
+    </div>
+
+    <div class="vol-wrap">
+      <span class="vol-label">Vol</span>
+      <input type="range" class="vol-slider" id="vol" min="0" max="1" step="0.01" value="0.8" oninput="setVol(this.value)">
+    </div>
+
+    <div class="tracklist">
+      <div class="track active" id="t-0" onclick="playTrack(0)">
+        <span class="t-num">01</span>
+        <div class="t-info">
+          <div class="t-title">Can You Forgive Me</div>
+          <div class="t-artist">MP3</div>
+        </div>
+      </div>
+      <div class="track" id="t-1" onclick="playTrack(1)">
+        <span class="t-num">02</span>
+        <div class="t-info">
+          <div class="t-title">Last Flight to Wherever</div>
+          <div class="t-artist">MP3</div>
+        </div>
+      </div>
+      <div class="track" id="t-2" onclick="playTrack(2)">
+        <span class="t-num">03</span>
+        <div class="t-info">
+          <div class="t-title">你哈 你哈 你哈</div>
+          <div class="t-artist">MP3</div>
+        </div>
+      </div>
+      <div class="track" id="t-3" onclick="playTrack(3)">
+        <span class="t-num">04</span>
+        <div class="t-info">
+          <div class="t-title">Prince of Denmark</div>
+          <div class="t-artist">Manndarin</div>
+        </div>
+      </div>
+      <div class="track" id="t-4" onclick="playTrack(4)">
+        <span class="t-num">05</span>
+        <div class="t-info">
+          <div class="t-title">U.S Embassy Bombing</div>
+          <div class="t-artist">Genom Records</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+        <span class="doc-arrow">→</span>
+      </a>
+    </div>
+  </div>
+  <button class="docs-trigger" id="docs-trigger" onclick="toggleDocs()">
+    Docs <span class="arrow">↑</span>
+  </button>
+</div>
+
+<!-- BOTTOM LINKS -->
+<div class="bottom-links">
+  <a href="https://www.instagram.com/mp3inc/" target="_blank">Instagram</a>
+  <a href="https://www.youtube.com/@MP4Mish" target="_blank">YouTube</a>
+  <a href="https://open.spotify.com/playlist/5wjrDxEc2YOO9acKqpU4ZJ" target="_blank">Spotify</a>
+</div>
+
+<!-- SOUNDCLOUD WIDGETS (hidden) -->
+<iframe id="sc-0" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/why_mel/can-u-forgive-me&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+  style="display:none;"></iframe>
+<iframe id="sc-1" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/nirrro/harrison-bdp-last-flight-to-wherever&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+  style="display:none;"></iframe>
+<iframe id="sc-2" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/n9mpjexfnhan/z0qiqin_bi0h4&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+  style="display:none;"></iframe>
+<iframe id="sc-4" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/genomrecords/04-us-embassy-bombing&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+  style="display:none;"></iframe>
+<iframe id="sc-3" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/manndarin/16-prince-of-denmark-gs&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false"
+  style="display:none;"></iframe>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+// Make player draggable from header only
+(function() {
+  var player = document.getElementById('player');
+  var header = player ? player.querySelector('.player-header') : null;
+  if (!header) return;
+  var isDragging = false, startX, startY, startLeft, startTop, moved;
+
+  header.addEventListener('mousedown', function(e) {
+    if (e.target.tagName === 'BUTTON') return;
+    isDragging = true;
+    moved = false;
+    startX = e.clientX;
+    startY = e.clientY;
+    startLeft = player.offsetLeft;
+    startTop = player.offsetTop;
+    player.style.transition = 'none';
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    var dx = e.clientX - startX;
+    var dy = e.clientY - startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    var newLeft = Math.max(0, Math.min(window.innerWidth - player.offsetWidth, startLeft + dx));
+    var newTop = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, startTop + dy));
+    player.style.left = newLeft + 'px';
+    player.style.top = newTop + 'px';
+  });
+
+  document.addEventListener('mouseup', function() {
+    isDragging = false;
+  });
+})();
+
+
+
+
+// ── PLAYER COLLAPSE ──
+function togglePlayer(e) {
+  if (e) e.stopPropagation();
+  var player = document.getElementById('player');
+  var btn = document.getElementById('collapse-btn');
+  var isMin = player.classList.contains('minimised');
+  player.classList.toggle('minimised', !isMin);
+  btn.textContent = isMin ? '−' : '+';
+}
+
+// ── PLAYER DRAG (handle only) ──
+(function() {
+  var player = document.getElementById('player');
+  var handle = document.getElementById('player-drag-handle');
+  if (!player || !handle) return;
+  var dragging = false, ox, oy;
+
+  handle.addEventListener('mousedown', function(e) {
+    if (e.target.id === 'collapse-btn') return;
+    dragging = true;
+    player.style.right = 'auto';
+    player.style.bottom = 'auto';
+    ox = e.clientX - player.getBoundingClientRect().left;
+    oy = e.clientY - player.getBoundingClientRect().top;
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    var x = Math.max(0, Math.min(window.innerWidth  - player.offsetWidth,  e.clientX - ox));
+    var y = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, e.clientY - oy));
+    player.style.left = x + 'px';
+    player.style.top  = y + 'px';
+  });
+
+  document.addEventListener('mouseup', function() { dragging = false; });
+
+  // Touch support
+  handle.addEventListener('touchstart', function(e) {
+    if (e.target.id === 'collapse-btn') return;
+    var t = e.touches[0];
+    dragging = true;
+    player.style.right = 'auto'; player.style.bottom = 'auto';
+    ox = t.clientX - player.getBoundingClientRect().left;
+    oy = t.clientY - player.getBoundingClientRect().top;
+  }, {passive:true});
+
+  document.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    var t = e.touches[0];
+    var x = Math.max(0, Math.min(window.innerWidth  - player.offsetWidth,  t.clientX - ox));
+    var y = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, t.clientY - oy));
+    player.style.left = x + 'px';
+    player.style.top  = y + 'px';
+  }, {passive:true});
+
+  document.addEventListener('touchend', function() { dragging = false; });
+})();
+
+</script>
+<script>
+const TRACKS = [
+  { title: 'Can You Forgive Me',      artist: 'MP3' },
+  { title: 'Last Flight to Wherever', artist: 'MP3' },
+  { title: '你哈 你哈 你哈',              artist: 'MP3' },
+  { title: 'Prince of Denmark',       artist: 'Manndarin' },
+  { title: 'U.S Embassy Bombing',      artist: 'Genom Records' },
+];
+
+var currentIdx = 0;
+var isPlaying = false;
+var progressTimer = null;
+var crossfading = false;
+var widgets = [];
+var widgetsReady = 0;
+const CROSSFADE = 3000;
+
+function fmt(ms) {
+  if (!ms || isNaN(ms)) return '0:00';
+  const s = Math.floor(ms / 1000);
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+
+function updateUI() {
+  const t = TRACKS[currentIdx];
+  const npTitle = document.getElementById('np-title');
+  const npArtist = document.getElementById('np-artist');
+  const headerTrack = document.getElementById('header-track');
+  if (npTitle) npTitle.textContent = t.title;
+  if (npArtist) npArtist.textContent = t.artist;
+  if (headerTrack) headerTrack.textContent = t.title;
+}
+
+function setPlayState(playing) {
+  isPlaying = playing;
+  const dot = document.getElementById('player-dot');
+  const btn = document.getElementById('play-btn');
+  if (playing) {
+    if (dot) dot.classList.remove('stopped');
+    if (btn) btn.innerHTML = '<div class="pause-bars"><span></span><span></span></div>';
+  } else {
+    if (dot) dot.classList.add('stopped');
+    if (btn) btn.innerHTML = '<div class="play-tri"></div>';
+  }
+}
+
+function startProgress() {
+  if (progressTimer) clearInterval(progressTimer);
+  progressTimer = setInterval(function() {
+    if (!isPlaying || !widgets[currentIdx]) return;
+    widgets[currentIdx].getPosition(function(pos) {
+      widgets[currentIdx].getDuration(function(dur) {
+        if (!dur) return;
+        var pct = (pos / dur) * 100;
+        var fill = document.getElementById('progress-fill');
+        var cur = document.getElementById('time-cur');
+        var tot = document.getElementById('time-tot');
+        if (fill) fill.style.width = pct + '%';
+        if (cur) cur.textContent = fmt(pos);
+        if (tot) tot.textContent = fmt(dur);
+        if ((dur - pos) < CROSSFADE && !crossfading) crossfadeToNext();
+      });
+    });
+  }, 600);
+}
+
+function crossfadeToNext() {
+  if (!widgets.length) return;
+  crossfading = true;
+  var nextIdx = (currentIdx + 1) % TRACKS.length;
+  var vol = 80;
+  var fadeOut = setInterval(function() {
+    vol = Math.max(0, vol - 8);
+    widgets[currentIdx].setVolume(vol);
+    if (vol <= 0) clearInterval(fadeOut);
+  }, CROSSFADE / 10);
+  widgets[nextIdx].seekTo(0);
+  widgets[nextIdx].play();
+  var volIn = 0;
+  var fadeIn = setInterval(function() {
+    volIn = Math.min(80, volIn + 8);
+    widgets[nextIdx].setVolume(volIn);
+    if (volIn >= 80) clearInterval(fadeIn);
+  }, CROSSFADE / 10);
+  setTimeout(function() {
+    widgets[currentIdx].pause();
+    widgets[currentIdx].setVolume(80);
+    currentIdx = nextIdx;
+    crossfading = false;
+    updateUI();
+    startProgress();
+  }, CROSSFADE);
+}
+
+function playTrack(idx) {
+  if (!widgets.length) return;
+  widgets[currentIdx].pause();
+  widgets[currentIdx].setVolume(80);
+  crossfading = false;
+  currentIdx = idx;
+  widgets[currentIdx].seekTo(0);
+  widgets[currentIdx].setVolume(80);
+  widgets[currentIdx].play();
+  setPlayState(true);
+  updateUI();
+  startProgress();
+}
+
+function togglePlay() {
+  if (!widgets.length) return;
+  if (isPlaying) {
+    widgets[currentIdx].pause();
+    setPlayState(false);
+    clearInterval(progressTimer);
+  } else {
+    widgets[currentIdx].play();
+    setPlayState(true);
+    startProgress();
+  }
+}
+
+function nextTrack() { playTrack((currentIdx + 1) % TRACKS.length); }
+function prevTrack() { playTrack((currentIdx - 1 + TRACKS.length) % TRACKS.length); }
+function setVol(v) { if (widgets[currentIdx]) widgets[currentIdx].setVolume(Math.round(v * 100)); }
+
+document.getElementById('progress-bg').addEventListener('click', function(e) {
+  if (!widgets[currentIdx]) return;
+  var pct = e.offsetX / e.currentTarget.offsetWidth;
+  widgets[currentIdx].getDuration(function(dur) {
+    widgets[currentIdx].seekTo(pct * dur);
+  });
+});
+
+// Init SC widgets after page load
+window.addEventListener('load', function() {
+  if (typeof SC === 'undefined') return;
+  widgets = [
+    SC.Widget(document.getElementById('sc-0')),
+    SC.Widget(document.getElementById('sc-1')),
+    SC.Widget(document.getElementById('sc-2')),
+    SC.Widget(document.getElementById('sc-3')),
+    SC.Widget(document.getElementById('sc-4')),
+  ];
+  widgets.forEach(function(w, i) {
+    w.bind(SC.Widget.Events.READY, function() {
+      widgetsReady++;
+      w.setVolume(80);
+      w.bind(SC.Widget.Events.FINISH, function() {
+        if (!crossfading) crossfadeToNext();
+      });
+    });
+  });
+});
+
+updateUI();
+</script>
+
+<!-- MINESWEEPER BUTTON -->
+<div id="ms-btn-wrap" style="position:fixed;top:80px;right:24px;z-index:200;">
+  <button onclick="toggleMinesweeper()" style="background:#000;color:#fff;border:none;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;padding:10px 16px;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#000'">
+    💣 Minesweeper
+  </button>
+</div>
+
+<!-- MINESWEEPER POPOUT -->
+<div id="ms-popout" style="display:none;position:fixed;top:120px;right:24px;z-index:199;background:#fff;border:1px solid #111;padding:0;width:280px;cursor:default;user-select:none;">
+  <div id="ms-header" style="background:#111;color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;cursor:grab;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;">
+    <span>Minesweeper</span>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="ms-mine-count" style="color:#ff4444;">💣 10</span>
+      <button id="ms-reset" onclick="msReset()" style="background:#fff;color:#111;border:none;font-family:'Share Tech Mono',monospace;font-size:10px;padding:2px 8px;cursor:pointer;">↺</button>
+      <button onclick="toggleMinesweeper()" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;line-height:1;">×</button>
+    </div>
+  </div>
+  <div style="padding:12px;">
+    <div id="ms-status" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:8px;text-align:center;">Click a cell to start</div>
+    <div id="ms-board" style="display:grid;grid-template-columns:repeat(9,1fr);gap:2px;"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#ccc;">
+      <span>Time: <span id="ms-timer">0</span>s</span>
+      <span>Flags: <span id="ms-flags">0</span>/10</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── VISITOR COUNTER ──
+(function() {
+  var count = parseInt(localStorage.getItem('mp3_visitors') || '0') + 1;
+  localStorage.setItem('mp3_visitors', count);
+  var el = document.getElementById('visitor-count');
+  if (el) el.textContent = String(count).padStart(4, '0');
+})();
+
+// ── MINESWEEPER ──
+var msOpen = false;
+function toggleMinesweeper() {
+  msOpen = !msOpen;
+  document.getElementById('ms-popout').style.display = msOpen ? 'block' : 'none';
+  if (msOpen && !msStarted) msReset();
+}
+
+var ROWS = 9, COLS = 9, MINES = 10;
+var msBoard = [], msRevealed = [], msFlagged = [], msGameOver = false, msStarted = false;
+var msTimerVal = 0, msTimerInterval = null, msFlagsUsed = 0;
+
+function msReset() {
+  msGameOver = false; msStarted = false; msFlagsUsed = 0;
+  msBoard = []; msRevealed = []; msFlagged = [];
+  clearInterval(msTimerInterval); msTimerVal = 0;
+  document.getElementById('ms-timer').textContent = '0';
+  document.getElementById('ms-flags').textContent = '0';
+  document.getElementById('ms-mine-count').textContent = '💣 ' + MINES;
+  document.getElementById('ms-status').textContent = 'Click a cell to start';
+  document.getElementById('ms-status').style.color = '#aaa';
+
+  for (var r = 0; r < ROWS; r++) {
+    msBoard.push([]); msRevealed.push([]); msFlagged.push([]);
+    for (var c = 0; c < COLS; c++) {
+      msBoard[r].push(0); msRevealed[r].push(false); msFlagged[r].push(false);
+    }
+  }
+  msRenderBoard();
+}
+
+function msPlaceMines(safeR, safeC) {
+  var placed = 0;
+  while (placed < MINES) {
+    var r = Math.floor(Math.random() * ROWS);
+    var c = Math.floor(Math.random() * COLS);
+    if (msBoard[r][c] !== -1 && !(r === safeR && c === safeC)) {
+      msBoard[r][c] = -1; placed++;
+    }
+  }
+  for (var r = 0; r < ROWS; r++) {
+    for (var c = 0; c < COLS; c++) {
+      if (msBoard[r][c] === -1) continue;
+      var count = 0;
+      for (var dr = -1; dr <= 1; dr++) for (var dc = -1; dc <= 1; dc++) {
+        var nr = r+dr, nc = c+dc;
+        if (nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&msBoard[nr][nc]===-1) count++;
+      }
+      msBoard[r][c] = count;
+    }
+  }
+}
+
+function msReveal(r, c) {
+  if (r<0||r>=ROWS||c<0||c>=COLS||msRevealed[r][c]||msFlagged[r][c]) return;
+  msRevealed[r][c] = true;
+  if (msBoard[r][c] === 0) {
+    for (var dr=-1;dr<=1;dr++) for (var dc=-1;dc<=1;dc++) msReveal(r+dr,c+dc);
+  }
+}
+
+function msClick(r, c) {
+  if (msGameOver || msRevealed[r][c] || msFlagged[r][c]) return;
+  if (!msStarted) {
+    msPlaceMines(r, c);
+    msStarted = true;
+    msTimerInterval = setInterval(function() {
+      msTimerVal++;
+      document.getElementById('ms-timer').textContent = msTimerVal;
+    }, 1000);
+  }
+  if (msBoard[r][c] === -1) {
+    msGameOver = true;
+    clearInterval(msTimerInterval);
+    for (var i=0;i<ROWS;i++) for (var j=0;j<COLS;j++) if (msBoard[i][j]===-1) msRevealed[i][j]=true;
+    document.getElementById('ms-status').textContent = '💥 Game over';
+    document.getElementById('ms-status').style.color = '#ff4444';
+  } else {
+    msReveal(r, c);
+    msCheckWin();
+  }
+  msRenderBoard();
+}
+
+function msFlag(e, r, c) {
+  e.preventDefault();
+  if (msGameOver || msRevealed[r][c]) return;
+  msFlagged[r][c] = !msFlagged[r][c];
+  msFlagsUsed += msFlagged[r][c] ? 1 : -1;
+  document.getElementById('ms-flags').textContent = msFlagsUsed;
+  msRenderBoard();
+}
+
+function msCheckWin() {
+  var unrev = 0;
+  for (var r=0;r<ROWS;r++) for (var c=0;c<COLS;c++) if (!msRevealed[r][c]) unrev++;
+  if (unrev === MINES) {
+    msGameOver = true;
+    clearInterval(msTimerInterval);
+    document.getElementById('ms-status').textContent = '🏆 You won!';
+    document.getElementById('ms-status').style.color = '#3aaa3a';
+  }
+}
+
+var numColors = ['','#1a6b1a','#ff8c00','#cc2222','#2255cc','#880000','#008080','#000','#444'];
+
+function msRenderBoard() {
+  var board = document.getElementById('ms-board');
+  board.innerHTML = '';
+  for (var r=0;r<ROWS;r++) {
+    for (var c=0;c<COLS;c++) {
+      var cell = document.createElement('div');
+      var isRev = msRevealed[r][c], isFlag = msFlagged[r][c], val = msBoard[r][c];
+      cell.style.cssText = 'width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:Share Tech Mono,monospace;font-weight:bold;cursor:pointer;border:1px solid;box-sizing:border-box;';
+      if (isRev) {
+        cell.style.background = val===-1 ? '#ffdddd' : '#f8f8f8';
+        cell.style.borderColor = '#ddd';
+        cell.style.cursor = 'default';
+        if (val === -1) cell.textContent = '💣';
+        else if (val > 0) { cell.textContent = val; cell.style.color = numColors[val]; }
+      } else if (isFlag) {
+        cell.style.background = '#fff';
+        cell.style.borderColor = '#111';
+        cell.textContent = '🚩';
+      } else {
+        cell.style.background = '#fff';
+        cell.style.borderColor = '#111';
+        cell.addEventListener('mouseover', function(){ this.style.background='#f0f0f0'; });
+        cell.addEventListener('mouseout', function(){ this.style.background='#fff'; });
+      }
+      (function(row,col){ 
+        cell.addEventListener('click', function(){ msClick(row,col); });
+        cell.addEventListener('contextmenu', function(e){ msFlag(e,row,col); });
+      })(r,c);
+      board.appendChild(cell);
+    }
+  }
+}
+
+// Make minesweeper popout draggable
+(function(){
+  var el = document.getElementById('ms-header');
+  var pop = document.getElementById('ms-popout');
+  if (!el) return;
+  var drag=false, sx,sy,sl,st;
+  el.addEventListener('mousedown',function(e){
+    drag=true; sx=e.clientX; sy=e.clientY;
+    sl=pop.offsetLeft; st=pop.offsetTop;
+    pop.style.right='auto';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!drag)return;
+    pop.style.left=Math.max(0,sl+(e.clientX-sx))+'px';
+    pop.style.top=Math.max(0,st+(e.clientY-sy))+'px';
+  });
+  document.addEventListener('mouseup',function(){ drag=false; });
+})();
+</script>
+
+</body>
+</html>
