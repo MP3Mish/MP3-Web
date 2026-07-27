@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPƎ — Terms &amp; Shipping</title>
+<link rel="icon" type="image/png" href="assets/img_50d15dd6.png">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --cursor: url("assets/cursor.svg") 10 10, crosshair; }
+html, body {
+  background: #fff; color: #000;
+  font-family: 'Share Tech Mono', monospace;
+  cursor: var(--cursor); min-height: 100vh;
+}
+a, button, summary { cursor: var(--cursor); }
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 40px; border-bottom: 1px solid #eee;
+}
+.head-logo img { height: 30px; width: auto; display: block; }
+main { max-width: 640px; margin: 0 auto; padding: 40px 24px 120px; }
+h1 { font-size: 12px; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 30px; }
+h1::before { content: '→ '; color: #f00; }
+details { border: 1px solid #eee; border-bottom: none; }
+details:last-of-type { border-bottom: 1px solid #eee; }
+summary {
+  list-style: none; padding: 14px 16px;
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  display: flex; justify-content: space-between;
+  transition: background 0.15s;
+}
+summary:hover { background: #f7f7f7; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: '+'; }
+details[open] summary::after { content: '−'; }
+.legal-body {
+  padding: 4px 16px 18px;
+  font-size: 10px; letter-spacing: 1px; line-height: 2.1; color: #666;
+}
+.bottom-links {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 40px; padding: 14px;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  border-top: 1px solid #f0f0f0; background: rgba(255,255,255,0.95);
+}
+.bottom-links a { color: #000; text-decoration: none; transition: opacity 0.2s; }
+.bottom-links a:hover { opacity: 0.3; }
+@media (max-width: 600px) { header { padding: 14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="head-logo" href="index.html"><img src="assets/logo-black.png" alt="MPƎ"></a>
+</header>
+
+<main>
+  <h1>Terms &amp; Shipping</h1>
+
+  <details open>
+    <summary>Shipping</summary>
+    <div class="legal-body">
+      Orders are processed within 3–5 business days. Domestic (AU) shipping 5–7 business days after dispatch. International shipping 10–21 business days depending on destination. Tracking is emailed at dispatch. MPƎ is not responsible for customs duties or import taxes on international orders.
+    </div>
+  </details>
+
+  <details>
+    <summary>Returns &amp; Exchanges</summary>
+    <div class="legal-body">
+      Unworn, unwashed items with tags attached may be returned within 14 days of delivery for exchange or store credit. To start a return, email <a href="mailto:Misha.MP3@outlook.com" style="color:#000;">Misha.MP3@outlook.com</a> with your order number. Return shipping is at the buyer's cost unless the item is faulty. Sale items are final.
+    </div>
+  </details>
+
+  <details>
+    <summary>Terms of Service</summary>
+    <div class="legal-body">
+      By purchasing from MPƎ you agree to these terms. All items are limited-run; quantities are not guaranteed after checkout begins. Prices are in USD unless stated otherwise. MPƎ reserves the right to cancel and refund any order. All content, imagery, and the MPƎ mark are property of MPƎ and may not be reproduced without permission.
+    </div>
+  </details>
+
+  <details>
+    <summary>Privacy</summary>
+    <div class="legal-body">
+      We collect only what's needed to fulfil your order (name, address, email) and to run the mailing list if you join it. Payments are handled by Shopify — MPƎ never sees your card details. We don't sell your data. To be removed from the mailing list, email <a href="mailto:Misha.MP3@outlook.com" style="color:#000;">Misha.MP3@outlook.com</a>.
+    </div>
+  </details>
+</main>
+
+<div class="bottom-links">
+  <a href="index.html">Home</a>
+  <a href="mp3-product.html">Products</a>
+  <a href="mailto:Misha.MP3@outlook.com">Contact</a>
+</div>
+
+<script src="assets/mp3-sound.js"></script>
+</body>
+</html>
