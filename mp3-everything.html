@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MPƎ — Everything Else</title>
-<link rel="icon" type="image/png" href="assets/img_50d15dd6.png">
+<link rel="icon" type="image/png" href="img_50d15dd6.png">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --cursor: url("assets/cursor.svg") 10 10, crosshair; }
+:root { --cursor: url("cursor.svg") 10 10, crosshair; }
 html, body {
   background: #fff; color: #000;
   font-family: 'Share Tech Mono', monospace;
@@ -156,7 +156,7 @@ details[open] summary::after { content: '−'; }
 <body>
 
 <header>
-  <a class="head-logo" href="index.html"><img src="assets/img_50d15dd6.png" alt="MPƎ" style="filter:brightness(0);"></a>
+  <a class="head-logo" href="index.html"><img src="img_50d15dd6.png" alt="MPƎ" style="filter:brightness(0);"></a>
 </header>
 
 <main>
@@ -261,14 +261,14 @@ function sendQuestion() {
     '&body=' + encodeURIComponent(m + '\n\n— ' + (n || 'Anonymous'));
 }
 
-/* LOOKBOOK — loads assets/lookbook/01.jpg … 12.jpg, silently skips missing files */
+/* LOOKBOOK — loads lookbook-01.jpg … 12.jpg, silently skips missing files */
 var LB_MAX = 12, lbImgs = [], lbCur = 0;
 (function () {
   var grid = document.getElementById('lb-grid');
   var pending = LB_MAX, found = 0;
   for (var i = 1; i <= LB_MAX; i++) {
     (function (i) {
-      var src = 'assets/lookbook/' + String(i).padStart(2, '0') + '.jpg';
+      var src = 'lookbook-' + String(i).padStart(2, '0') + '.jpg';
       var im = new Image();
       im.onload = function () {
         lbImgs.push(src);

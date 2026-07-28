@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MPƎ — Products</title>
 <meta name="description" content="MPƎ Season 01 — Work Denim & Playa Denim. $175.">
-<link rel="icon" type="image/png" href="assets/img_50d15dd6.png">
+<link rel="icon" type="image/png" href="img_50d15dd6.png">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -347,7 +347,7 @@ nav {
 <body>
 
 <nav>
-  <a class="nav-logo" href="index.html"><img src="assets/img_09e3a263.png" alt="MP3" style="height:28px;width:auto;display:block;filter:brightness(0);"></a>
+  <a class="nav-logo" href="index.html"><img src="img_09e3a263.png" alt="MP3" style="height:28px;width:auto;display:block;filter:brightness(0);"></a>
   <a class="nav-cart" href="#" id="nav-cart" onclick="openCart(event)">Cart [0]</a>
 </nav>
 
@@ -450,8 +450,8 @@ nav {
 
 <script>
 const IMGS = {
-  work: [`assets/img_cc9faf10.jpg`,`assets/img_c02bf270.jpg`,`assets/img_874b547c.jpg`,`assets/img_4637cd2a.jpg`,`assets/img_4d805a22.jpg`,`assets/img_29d7d569.jpg`,`assets/img_91a6ab08.jpg`],
-  playa: [`assets/img_a2b3382c.jpg`,`assets/img_70fdb513.jpg`,`assets/img_01bdfc5f.jpg`,`assets/img_47740f63.jpg`,`assets/img_a4470a47.jpg`]
+  work: [`img_cc9faf10.jpg`,`img_c02bf270.jpg`,`img_874b547c.jpg`,`img_4637cd2a.jpg`,`img_4d805a22.jpg`,`img_29d7d569.jpg`,`img_91a6ab08.jpg`],
+  playa: [`img_a2b3382c.jpg`,`img_70fdb513.jpg`,`img_01bdfc5f.jpg`,`img_47740f63.jpg`,`img_a4470a47.jpg`]
 };
 
 const state = { work: 0, playa: 0 };
@@ -655,9 +655,9 @@ document.addEventListener('keydown', e => {
 });
 
 /* ============ SYNCED VIDEO LOOPS ============ */
-/* Drop files at assets/work-loop.mp4 + assets/playa-loop.mp4 in the repo.
+/* Drop files at work-loop.mp4 + playa-loop.mp4 in the repo.
    If a file is missing, that side falls back to the image gallery. */
-const VID_SRC = { work: 'assets/work-loop.mp4', playa: 'assets/playa-loop.mp4' };
+const VID_SRC = { work: 'work-loop.mp4', playa: 'playa-loop.mp4' };
 const vids = {};
 
 function initVideos() {
