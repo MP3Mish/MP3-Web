@@ -9,16 +9,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-:root { --cursor: url("assets/cursor.svg") 10 10, crosshair; }
+:root {
+  --cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIj4KICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI3IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjAwMDAiIHN0cm9rZS13aWR0aD0iMS4yIi8+CiAgPGxpbmUgeDE9IjAiIHkxPSIxMCIgeDI9IjUiIHkyPSIxMCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogIDxsaW5lIHgxPSIxNSIgeTE9IjEwIiB4Mj0iMjAiIHkyPSIxMCIgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utd2lkdGg9IjEuMiIvPgogIDxsaW5lIHgxPSIxMCIgeTE9IjAiIHgyPSIxMCIgeTI9IjUiIHN0cm9rZT0iI2ZmMDAwMCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8bGluZSB4MT0iMTAiIHkxPSIxNSIgeDI9IjEwIiB5Mj0iMjAiIHN0cm9rZT0iI2ZmMDAwMCIgc3Ryb2tlLXdpZHRoPSIxLjIiLz4KICA8Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIxIiBmaWxsPSIjZmYwMDAwIi8+Cjwvc3ZnPg==") 10 10, crosshair;
+}
 html, body {
-  background: #fff; color: #000;
+  background: #fff;
+  color: #000;
   font-family: 'Share Tech Mono', monospace;
   cursor: var(--cursor);
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
-a, button { cursor: var(--cursor); }
 
-/* NAV — logo + cart only */
+/* NAV */
 nav {
   position: sticky; top: 0; z-index: 100;
   background: rgba(255,255,255,0.97);
@@ -26,47 +29,166 @@ nav {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 40px; height: 50px;
 }
-.nav-logo img { height: 28px; width: auto; display: block; }
-.nav-cart {
-  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
-  color: #000; text-decoration: none; background: none; border: none;
-  border-bottom: 1px solid #000; padding-bottom: 1px;
-  font-family: 'Share Tech Mono', monospace;
-  transition: opacity 0.2s;
-}
+.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 4px; text-decoration: none; color: #000; }
+.nav-cart { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #000; text-decoration: none; border-bottom: 1px solid #000; padding-bottom: 1px; transition: opacity 0.2s; }
 .nav-cart:hover { opacity: 0.4; }
 
-/* PRODUCTS */
-.products-wrap { display: grid; grid-template-columns: 1fr 1fr; }
+/* PRODUCTS — full page split, locked to viewport (nav 50px + footer ~40px) */
+.products-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: calc(100vh - 50px - 40px);
+}
+
 .product {
   display: flex; flex-direction: column;
   border-right: 1px solid #eee;
   transition: background 0.25s;
+  cursor: var(--cursor);
+  min-height: 0;
+  overflow: hidden;
 }
 .product:last-child { border-right: none; }
 .product.work:hover { background: #f0faf0; }
 .product.playa:hover { background: #fff0f5; }
 
+/* IMAGE */
 .img-wrap {
-  position: relative; overflow: hidden; flex: 1;
-  min-height: 70vh; background: #fff;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  background: #ffffff;
 }
 .img-wrap img {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; opacity: 0; transition: opacity 0.4s ease;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 12px 0 20px;
+  opacity: 0; transition: opacity 0.4s ease;
   mix-blend-mode: multiply;
 }
+.img-wrap video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 12px 0 20px;
+  display: none;
+  mix-blend-mode: multiply;
+}
+.img-wrap.has-video video { display: block; }
+.img-wrap.has-video img,
+.img-wrap.has-video .img-dots,
+.img-wrap.has-video .img-arrows { display: none; }
+
+/* KEYBOARD ACTIVE — mirrors hover */
+.product.kb-active.work { background: #f0faf0; }
+.product.kb-active.playa { background: #fff0f5; }
+.work.kb-active .product-name, .work.kb-active .product-price { color: #3a8a3a; }
+.playa.kb-active .product-name, .playa.kb-active .product-price { color: #e0609a; }
+.work.kb-active .btn-atc.ready { background: #3a8a3a; }
+.playa.kb-active .btn-atc.ready { background: #e0609a; }
+
+/* STOCK TICKER */
+.stock-line {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: #aaa; min-height: 12px;
+  transition: color 0.2s;
+}
+.stock-line.flash-work { color: #3a8a3a; }
+.stock-line.flash-playa { color: #e0609a; }
+.stock-line.low { color: #cc0000; }
+.size-btn.oos {
+  color: #ddd; border-color: #f0f0f0;
+  text-decoration: line-through; pointer-events: none;
+}
+
+/* KEY HINTS */
+.key-hints {
+  position: fixed; bottom: 48px; right: 14px; z-index: 40;
+  font-size: 8px; letter-spacing: 2px; color: #ccc;
+  text-transform: uppercase;
+}
+
+/* CART DRAWER */
+.cart-backdrop {
+  position: fixed; inset: 0; z-index: 150;
+  display: none; cursor: var(--cursor);
+}
+.cart-backdrop.open { display: block; }
+.cart-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 200;
+  width: 340px; max-width: 90vw;
+  background: #fff; border-left: 1px solid #eee;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  display: flex; flex-direction: column;
+}
+.cart-drawer.open { transform: translateX(0); }
+.cart-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid #eee;
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+}
+.cart-close {
+  background: none; border: none; font-family: 'Share Tech Mono', monospace;
+  font-size: 14px; cursor: var(--cursor); color: #000;
+}
+.cart-items { flex: 1; overflow-y: auto; padding: 8px 20px; }
+.cart-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid #f5f5f5;
+  font-size: 10px; letter-spacing: 1px;
+}
+.ci-name { text-transform: uppercase; letter-spacing: 2px; }
+.ci-size { color: #aaa; margin-top: 3px; }
+.ci-right { display: flex; align-items: center; gap: 10px; }
+.ci-qty { display: flex; align-items: center; gap: 6px; }
+.ci-qty button {
+  background: none; border: 1px solid #e0e0e0; color: #000;
+  font-family: 'Share Tech Mono', monospace; font-size: 10px;
+  width: 20px; height: 20px; cursor: var(--cursor); line-height: 1;
+}
+.ci-qty button:hover { border-color: #000; }
+.ci-price { min-width: 40px; text-align: right; }
+.ci-remove {
+  background: none; border: none; color: #ccc; font-size: 10px;
+  font-family: 'Share Tech Mono', monospace; cursor: var(--cursor);
+}
+.ci-remove:hover { color: #cc0000; }
+.cart-empty {
+  padding: 40px 0; text-align: center;
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #ccc;
+}
+.cart-foot { padding: 16px 20px 20px; border-top: 1px solid #eee; }
+.cart-total {
+  display: flex; justify-content: space-between;
+  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.btn-checkout {
+  display: block; width: 100%; text-align: center;
+  background: #000; color: #fff; border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  padding: 13px; cursor: var(--cursor); text-decoration: none;
+  transition: opacity 0.2s;
+}
+.btn-checkout:hover { opacity: 0.7; }
 .img-wrap img.active { opacity: 1; }
+
+/* image nav dots */
 .img-dots {
   position: absolute; bottom: 16px; left: 0; right: 0;
   display: flex; justify-content: center; gap: 6px; z-index: 2;
 }
 .img-dot {
   width: 5px; height: 5px; border-radius: 50%;
-  background: rgba(0,0,0,0.15); border: none;
+  background: rgba(0,0,0,0.15); border: none; cursor: var(--cursor);
   transition: background 0.2s; padding: 0;
 }
 .img-dot.active { background: #000; }
+
 .img-arrows {
   position: absolute; top: 50%; left: 0; right: 0;
   transform: translateY(-50%);
@@ -76,53 +198,122 @@ nav {
 }
 .img-wrap:hover .img-arrows { opacity: 1; }
 .img-arrow {
-  background: rgba(255,255,255,0.8); border: 1px solid #eee;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid #eee;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 12px; padding: 8px 12px; transition: all 0.15s;
+  font-size: 12px; padding: 8px 12px;
+  cursor: var(--cursor); transition: all 0.15s;
 }
 .img-arrow:hover { background: #000; color: #fff; border-color: #000; }
 
 /* INFO */
 .product-info {
-  padding: 28px 32px 32px;
+  padding: 14px 24px 16px;
   border-top: 1px solid #eee;
-  display: flex; flex-direction: column; gap: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+  flex-shrink: 0;
 }
+
 .info-top { display: flex; justify-content: space-between; align-items: baseline; }
-.product-name { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 3px; transition: color 0.25s; }
+.product-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px; letter-spacing: 3px;
+  transition: color 0.25s;
+}
+.work .product-name { color: #000; }
 .work:hover .product-name { color: #3a8a3a; }
+.playa .product-name { color: #000; }
 .playa:hover .product-name { color: #e0609a; }
-.product-price { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; transition: color 0.25s; }
+
+.product-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 2px; color: #000;
+  transition: color 0.25s;
+}
 .work:hover .product-price { color: #3a8a3a; }
 .playa:hover .product-price { color: #e0609a; }
-.product-desc { font-size: 10px; letter-spacing: 1px; color: #aaa; line-height: 2; }
+
+.product-desc {
+  font-size: 9px; letter-spacing: 1px;
+  color: #aaa; line-height: 1.7;
+}
 
 /* SIZE */
-.size-row { display: flex; flex-direction: column; gap: 10px; position: relative; }
-.size-head { display: flex; justify-content: space-between; align-items: baseline; }
+.size-row { display: flex; flex-direction: column; gap: 6px; }
 .size-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #ccc; }
-.size-chart-toggle {
-  background: none; border: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
-  color: #aaa; border-bottom: 1px solid #ddd; padding: 0 0 1px;
-  transition: color 0.15s;
-}
-.size-chart-toggle:hover { color: #000; border-color: #000; }
 .size-btns { display: flex; gap: 6px; }
 .size-btn {
   background: none; border: 1px solid #e0e0e0;
   font-family: 'Share Tech Mono', monospace;
   font-size: 10px; letter-spacing: 2px;
-  padding: 8px 14px; transition: all 0.15s; color: #000;
+  padding: 6px 12px; cursor: var(--cursor);
+  transition: all 0.15s; color: #000;
+  text-transform: uppercase;
 }
 .size-btn:hover { border-color: #000; }
-.size-btn.sel { background: #000; color: #fff; border-color: #000; }
+.size-btn.sel {
+  background: #000; color: #fff; border-color: #000;
+}
 .work .size-btn.sel { background: #3a8a3a; border-color: #3a8a3a; }
 .playa .size-btn.sel { background: #e0609a; border-color: #e0609a; }
 
-/* SIZE POPUP — name + numbers, flat card. Appears on size-button hover,
-   or full table via SIZE CHART toggle. No picture. */
+/* ATC — hidden until a size is picked */
+.btn-atc {
+  display: block; width: 100%; text-align: center;
+  background: #000; color: #fff;
+  border: none; font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+  padding: 0; cursor: var(--cursor);
+  text-decoration: none;
+  max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height 0.25s ease, opacity 0.25s ease, padding 0.25s ease, background 0.2s;
+  pointer-events: none;
+}
+.btn-atc.ready {
+  max-height: 44px; opacity: 1; padding: 11px;
+  pointer-events: auto;
+}
+.work:hover .btn-atc { background: #3a8a3a; }
+.playa:hover .btn-atc { background: #e0609a; }
+
+/* BOTTOM LINKS */
+.bottom-links {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 40px; padding: 14px;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+  border-top: 1px solid #f0f0f0;
+  background: rgba(255,255,255,0.95);
+  z-index: 50;
+}
+.bottom-links a { color: #000; text-decoration: none; transition: opacity 0.2s; }
+.bottom-links a:hover { opacity: 0.3; }
+
+@media (max-width: 760px) {
+  html, body { height: auto; overflow: auto; }
+  .products-wrap { grid-template-columns: 1fr; height: auto; }
+  .product { border-right: none; border-bottom: 1px solid #eee; }
+  .img-wrap { min-height: 55vh; }
+  nav { padding: 0 20px; }
+  .product-info { padding: 14px 20px 16px; }
+  .bottom-links { position: static; }
+}
+/* Tablet */
+@media (max-width: 1024px) and (min-width: 761px) {
+  .product-name { font-size: 26px; }
+}
+
+/* SIZE CHART — name + numbers popup on hover, full table via toggle */
+.size-row { position: relative; }
+.size-head { display: flex; justify-content: space-between; align-items: baseline; }
+.size-chart-toggle {
+  background: none; border: none;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+  color: #aaa; border-bottom: 1px solid #ddd; padding: 0 0 1px;
+  cursor: var(--cursor); transition: color 0.15s;
+}
+.size-chart-toggle:hover { color: #000; border-color: #000; }
 .size-pop {
   position: absolute; bottom: calc(100% + 8px); left: 0;
   background: #fff; border: 1px solid #000;
@@ -134,123 +325,30 @@ nav {
   min-width: 200px;
 }
 .size-pop.show { opacity: 1; transform: translateY(0); }
-.size-pop .sp-title {
-  font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
-  color: #aaa; margin-bottom: 8px;
-}
+.size-pop .sp-title { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: #aaa; margin-bottom: 8px; }
 .size-pop table { border-collapse: collapse; width: 100%; }
 .size-pop td { padding: 3px 0; }
 .size-pop td:last-child { text-align: right; }
-
-/* FULL CHART (toggle) */
-.size-chart-full {
-  display: none;
-  border: 1px solid #000;
-  font-size: 9px; letter-spacing: 1.5px;
-}
+.size-chart-full { display: none; border: 1px solid #000; font-size: 9px; letter-spacing: 1.5px; margin-top: 8px; }
 .size-chart-full.open { display: block; }
 .size-chart-full table { border-collapse: collapse; width: 100%; }
 .size-chart-full th, .size-chart-full td {
-  padding: 8px 10px; text-align: center;
+  padding: 7px 9px; text-align: center;
   border-bottom: 1px solid #eee; border-right: 1px solid #eee;
 }
-.size-chart-full th {
-  font-weight: normal; font-size: 8px; letter-spacing: 2px;
-  text-transform: uppercase; color: #aaa;
-}
+.size-chart-full th { font-weight: normal; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #aaa; }
 .size-chart-full th:first-child, .size-chart-full td:first-child { text-align: left; }
 .size-chart-full tr:last-child td { border-bottom: none; }
 .size-chart-full th:last-child, .size-chart-full td:last-child { border-right: none; }
-.size-chart-note { font-size: 8px; letter-spacing: 1px; color: #ccc; padding: 8px 10px; }
-
-/* ATC */
-.btn-atc {
-  display: block; width: 100%; text-align: center;
-  background: #000; color: #fff; border: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
-  padding: 16px; transition: background 0.2s;
-}
-.work:hover .btn-atc { background: #3a8a3a; }
-.playa:hover .btn-atc { background: #e0609a; }
-
-/* CART DRAWER */
-.cart-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.2);
-  opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 200;
-}
-.cart-overlay.open { opacity: 1; pointer-events: auto; }
-.cart-drawer {
-  position: fixed; top: 0; right: -360px; width: 340px; max-width: 90vw;
-  height: 100vh; background: #fff; border-left: 1px solid #000;
-  z-index: 201; transition: right 0.28s ease;
-  display: flex; flex-direction: column;
-}
-.cart-drawer.open { right: 0; }
-.cart-head {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 18px 20px; border-bottom: 1px solid #eee;
-  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
-}
-.cart-close { background: none; border: none; font-family: 'Share Tech Mono', monospace; font-size: 14px; }
-.cart-items { flex: 1; overflow-y: auto; padding: 10px 20px; }
-.cart-empty { font-size: 9px; letter-spacing: 2px; color: #ccc; text-transform: uppercase; padding: 30px 0; text-align: center; }
-.cart-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 0; border-bottom: 1px solid #f2f2f2;
-  font-size: 10px; letter-spacing: 1px;
-}
-.ci-name { text-transform: uppercase; letter-spacing: 2px; }
-.ci-size { color: #aaa; font-size: 9px; margin-top: 3px; }
-.ci-qty { display: flex; align-items: center; gap: 8px; }
-.ci-qty button {
-  background: none; border: 1px solid #ddd; width: 20px; height: 20px;
-  font-family: 'Share Tech Mono', monospace; font-size: 10px; line-height: 1;
-}
-.ci-qty button:hover { border-color: #000; }
-.ci-remove { background: none; border: none; color: #ccc; font-family: 'Share Tech Mono', monospace; font-size: 9px; }
-.ci-remove:hover { color: #f00; }
-.cart-foot { padding: 16px 20px 20px; border-top: 1px solid #eee; }
-.cart-total {
-  display: flex; justify-content: space-between;
-  font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-  margin-bottom: 14px;
-}
-.btn-checkout {
-  display: block; width: 100%; text-align: center;
-  background: #000; color: #fff; border: none;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
-  padding: 15px; text-decoration: none;
-}
-.btn-checkout:hover { background: #333; }
-
-/* FOOTER */
-.bottom-links {
-  display: flex; align-items: center; justify-content: center;
-  gap: 40px; padding: 18px;
-  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
-  border-top: 1px solid #f0f0f0; background: #fff;
-}
-.bottom-links a { color: #000; text-decoration: none; transition: opacity 0.2s; }
-.bottom-links a:hover { opacity: 0.3; }
-
-@media (max-width: 760px) {
-  .products-wrap { grid-template-columns: 1fr; }
-  .product { border-right: none; border-bottom: 1px solid #eee; }
-  nav { padding: 0 20px; }
-  .product-info { padding: 20px; }
-  .img-arrows { opacity: 1; }
-  .size-pop { display: none; } /* mobile uses full chart toggle */
-  .bottom-links { gap: 20px; flex-wrap: wrap; }
-}
+.size-chart-note { font-size: 8px; letter-spacing: 1px; color: #ccc; padding: 7px 9px; }
+@media (max-width: 760px) { .size-pop { display: none; } }
 </style>
 </head>
 <body>
 
 <nav>
-  <a class="nav-logo" href="index.html"><img src="assets/logo-black.png" alt="MPƎ"></a>
-  <button class="nav-cart" id="nav-cart" onclick="openCart()">Cart (0)</button>
+  <a class="nav-logo" href="index.html"><img src="assets/img_09e3a263.png" alt="MP3" style="height:28px;width:auto;display:block;filter:brightness(0);"></a>
+  <a class="nav-cart" href="#" id="nav-cart" onclick="openCart(event)">Cart [0]</a>
 </nav>
 
 <div class="products-wrap">
@@ -258,6 +356,8 @@ nav {
   <!-- WORK DENIM -->
   <div class="product work" id="prod-work">
     <div class="img-wrap" id="gallery-work">
+      <video id="vid-work" muted loop playsinline preload="auto"></video>
+      <!-- images injected by JS -->
       <div class="img-arrows">
         <button class="img-arrow" onclick="galleryPrev('work')">←</button>
         <button class="img-arrow" onclick="galleryNext('work')">→</button>
@@ -276,21 +376,23 @@ nav {
           <button class="size-chart-toggle" onclick="toggleChart('work')">Size Chart</button>
         </div>
         <div class="size-btns" id="sizes-work">
-          <button class="size-btn" data-size="30">30</button>
-          <button class="size-btn" data-size="32">32</button>
-          <button class="size-btn" data-size="34">34</button>
-          <button class="size-btn" data-size="36">36</button>
+          <button class="size-btn" onclick="selectSize('work',this)">30</button>
+          <button class="size-btn" onclick="selectSize('work',this)">32</button>
+          <button class="size-btn" onclick="selectSize('work',this)">34</button>
+          <button class="size-btn" onclick="selectSize('work',this)">36</button>
         </div>
         <div class="size-pop" id="pop-work"></div>
         <div class="size-chart-full" id="chart-work"></div>
+        <div class="stock-line" id="stock-work"></div>
       </div>
-      <button class="btn-atc" id="atc-work" onclick="addToCart('work')">Select Size to Add to Cart</button>
+      <a class="btn-atc" id="atc-work" href="#" target="_blank"></a>
     </div>
   </div>
 
   <!-- PLAYA DENIM -->
   <div class="product playa" id="prod-playa">
     <div class="img-wrap" id="gallery-playa">
+      <video id="vid-playa" muted loop playsinline preload="auto"></video>
       <div class="img-arrows">
         <button class="img-arrow" onclick="galleryPrev('playa')">←</button>
         <button class="img-arrow" onclick="galleryNext('playa')">→</button>
@@ -309,52 +411,304 @@ nav {
           <button class="size-chart-toggle" onclick="toggleChart('playa')">Size Chart</button>
         </div>
         <div class="size-btns" id="sizes-playa">
-          <button class="size-btn" data-size="30">30</button>
-          <button class="size-btn" data-size="32">32</button>
-          <button class="size-btn" data-size="34">34</button>
-          <button class="size-btn" data-size="36">36</button>
+          <button class="size-btn" onclick="selectSize('playa',this)">30</button>
+          <button class="size-btn" onclick="selectSize('playa',this)">32</button>
+          <button class="size-btn" onclick="selectSize('playa',this)">34</button>
+          <button class="size-btn" onclick="selectSize('playa',this)">36</button>
         </div>
         <div class="size-pop" id="pop-playa"></div>
         <div class="size-chart-full" id="chart-playa"></div>
+        <div class="stock-line" id="stock-playa"></div>
       </div>
-      <button class="btn-atc" id="atc-playa" onclick="addToCart('playa')">Select Size to Add to Cart</button>
+      <a class="btn-atc" id="atc-playa" href="#" target="_blank"></a>
     </div>
   </div>
 
 </div>
 
-<div class="bottom-links">
-  <a href="https://www.instagram.com/mp3inc/" target="_blank" rel="noopener">Instagram</a>
-  <a href="https://www.youtube.com/@MP%C6%8E" target="_blank" rel="noopener">YouTube</a>
-  <a href="https://open.spotify.com/playlist/5wjrDxEc2YOO9acKqpU4ZJ" target="_blank" rel="noopener">Spotify</a>
-  <a href="mp3-terms.html">T&amp;S</a>
-</div>
+<div class="key-hints">[W]/[P] product · [1–4] size · [ENTER] add · [C] cart</div>
 
-<!-- CART DRAWER -->
-<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
-<aside class="cart-drawer" id="cart-drawer">
+<div class="cart-backdrop" id="cart-backdrop" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cart-drawer">
   <div class="cart-head">
     <span>Cart</span>
-    <button class="cart-close" onclick="closeCart()">×</button>
+    <button class="cart-close" onclick="closeCart()">✕</button>
   </div>
   <div class="cart-items" id="cart-items"></div>
   <div class="cart-foot">
     <div class="cart-total"><span>Total</span><span id="cart-total">$0</span></div>
-    <a class="btn-checkout" id="btn-checkout" href="#" target="_blank" rel="noopener">Checkout</a>
+    <a class="btn-checkout" id="btn-checkout" href="#" target="_blank">Checkout</a>
   </div>
-</aside>
+</div>
+
+<div class="bottom-links">
+  <a href="https://www.instagram.com/mp3inc/" target="_blank">Instagram</a>
+  <a href="https://www.youtube.com/@MP%C6%8E" target="_blank">YouTube</a>
+  <a href="https://open.spotify.com/playlist/5wjrDxEc2YOO9acKqpU4ZJ" target="_blank">Spotify</a>
+  <a href="mp3-terms.html">T&amp;S</a>
+</div>
 
 <script>
-/* ---------- DATA ---------- */
-const VARIANTS = {
-  work:  { "30": "41283054469163", "32": "41283054501931", "34": "41283054534699", "36": "41283054567467" },
-  playa: { "30": "41283064889387", "32": "41283064922155", "34": "41283064954923", "36": "41283064987691" }
+const IMGS = {
+  work: [`assets/img_cc9faf10.jpg`,`assets/img_c02bf270.jpg`,`assets/img_874b547c.jpg`,`assets/img_4637cd2a.jpg`,`assets/img_4d805a22.jpg`,`assets/img_29d7d569.jpg`,`assets/img_91a6ab08.jpg`],
+  playa: [`assets/img_a2b3382c.jpg`,`assets/img_70fdb513.jpg`,`assets/img_01bdfc5f.jpg`,`assets/img_47740f63.jpg`,`assets/img_a4470a47.jpg`]
 };
-const NAMES = { work: "Work Denim", playa: "Playa Denim" };
-const PRICE = 175;
 
-/* Measurements in inches, garment laid flat.
-   EDIT THESE to match the actual garments before launch. */
+const state = { work: 0, playa: 0 };
+
+function buildGallery(id) {
+  const wrap = document.getElementById('gallery-' + id);
+  const dots = document.getElementById('dots-' + id);
+  IMGS[id].forEach((src, i) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.className = i === 0 ? 'active' : '';
+    wrap.insertBefore(img, wrap.querySelector('.img-arrows'));
+    const dot = document.createElement('button');
+    dot.className = 'img-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goTo(id, i);
+    dots.appendChild(dot);
+  });
+}
+
+function goTo(id, idx) {
+  const wrap = document.getElementById('gallery-' + id);
+  const imgs = wrap.querySelectorAll('img');
+  const dots = document.getElementById('dots-' + id).querySelectorAll('.img-dot');
+  imgs[state[id]].classList.remove('active');
+  dots[state[id]].classList.remove('active');
+  state[id] = idx;
+  imgs[state[id]].classList.add('active');
+  dots[state[id]].classList.add('active');
+}
+
+function galleryNext(id) { goTo(id, (state[id] + 1) % IMGS[id].length); }
+function galleryPrev(id) { goTo(id, (state[id] - 1 + IMGS[id].length) % IMGS[id].length); }
+
+/* ============ STOCK — edit these numbers as units sell ============ */
+const STOCK = {
+  work:  { '30': 4, '32': 6, '34': 3, '36': 2 },
+  playa: { '30': 5, '32': 4, '34': 3, '36': 1 }
+};
+
+/* Shopify variant IDs — cart permalink checkout */
+const VARIANTS = {
+  work:  { '30': '41283054469163', '32': '41283054501931', '34': '41283054534699', '36': '41283054567467' },
+  playa: { '30': '41283064889387', '32': '41283064922155', '34': '41283064954923', '36': '41283064987691' }
+};
+const SHOP = 'https://0hiuxa-fs.myshopify.com';
+
+function totalStock(id) {
+  return Object.values(STOCK[id]).reduce((a, b) => a + b, 0);
+}
+
+function initStockLines() {
+  ['work','playa'].forEach(id => {
+    document.getElementById('stock-' + id).textContent =
+      String(totalStock(id)).padStart(2, '0') + ' units · Season 01';
+    // mark sold-out sizes
+    document.querySelectorAll('#sizes-' + id + ' .size-btn').forEach(b => {
+      if (STOCK[id][b.textContent.trim()] === 0) b.classList.add('oos');
+    });
+  });
+}
+
+function selectSize(id, btn) {
+  const size = btn.textContent.trim();
+  if (STOCK[id][size] === 0) return;
+  document.querySelectorAll('#sizes-' + id + ' .size-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+
+  // stock ticker
+  const line = document.getElementById('stock-' + id);
+  const n = STOCK[id][size];
+  line.textContent = n === 1
+    ? 'Last pair · Size ' + size
+    : String(n).padStart(2, '0') + ' remaining · Size ' + size;
+  line.classList.toggle('low', n <= 1);
+  line.classList.remove('flash-work', 'flash-playa');
+  void line.offsetWidth;
+  line.classList.add('flash-' + id);
+  setTimeout(() => line.classList.remove('flash-' + id), 600);
+
+  // reveal ATC — adds to on-page cart drawer
+  const atc = document.getElementById('atc-' + id);
+  atc.textContent = 'Add to Cart — Size ' + size;
+  atc.href = '#';
+  atc.onclick = e => { e.preventDefault(); addToCart(id, size); };
+  atc.classList.add('ready');
+}
+
+/* ============ CART DRAWER ============ */
+const PRICE = 175;
+const NAMES = { work: 'Work Denim', playa: 'Playa Denim' };
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem('mp3cart') || '[]'); } catch (e) {}
+
+function saveCart() {
+  try { localStorage.setItem('mp3cart', JSON.stringify(cart)); } catch (e) {}
+}
+
+function addToCart(id, size) {
+  const existing = cart.find(i => i.id === id && i.size === size);
+  if (existing) {
+    if (existing.qty < STOCK[id][size]) existing.qty++;
+  } else {
+    cart.push({ id, size, qty: 1 });
+  }
+  saveCart();
+  renderCart();
+  openCart();
+}
+
+function changeQty(idx, delta) {
+  const item = cart[idx];
+  item.qty += delta;
+  if (item.qty > STOCK[item.id][item.size]) item.qty = STOCK[item.id][item.size];
+  if (item.qty <= 0) cart.splice(idx, 1);
+  saveCart();
+  renderCart();
+}
+
+function removeItem(idx) {
+  cart.splice(idx, 1);
+  saveCart();
+  renderCart();
+}
+
+function renderCart() {
+  const wrap = document.getElementById('cart-items');
+  const count = cart.reduce((a, i) => a + i.qty, 0);
+  document.getElementById('nav-cart').textContent = 'Cart [' + count + ']';
+
+  if (!cart.length) {
+    wrap.innerHTML = '<div class="cart-empty">Cart is empty</div>';
+    document.getElementById('cart-total').textContent = '$0';
+    document.getElementById('btn-checkout').style.display = 'none';
+    return;
+  }
+  document.getElementById('btn-checkout').style.display = 'block';
+
+  wrap.innerHTML = cart.map((i, idx) => `
+    <div class="cart-item">
+      <div>
+        <div class="ci-name">${NAMES[i.id]}</div>
+        <div class="ci-size">Size ${i.size}</div>
+      </div>
+      <div class="ci-right">
+        <div class="ci-qty">
+          <button onclick="changeQty(${idx},-1)">−</button>
+          <span>${i.qty}</span>
+          <button onclick="changeQty(${idx},1)">+</button>
+        </div>
+        <span class="ci-price">$${i.qty * PRICE}</span>
+        <button class="ci-remove" onclick="removeItem(${idx})">✕</button>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('cart-total').textContent =
+    '$' + cart.reduce((a, i) => a + i.qty * PRICE, 0);
+
+  // multi-item cart permalink checkout
+  document.getElementById('btn-checkout').href =
+    SHOP + '/cart/' + cart.map(i => VARIANTS[i.id][i.size] + ':' + i.qty).join(',');
+}
+
+function openCart(e) {
+  if (e) e.preventDefault();
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('cart-backdrop').classList.add('open');
+}
+function closeCart() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-backdrop').classList.remove('open');
+}
+
+/* ============ KEYBOARD SHORTCUTS ============ */
+let activeProduct = null;
+
+function setActive(id) {
+  activeProduct = id;
+  document.getElementById('prod-work').classList.toggle('kb-active', id === 'work');
+  document.getElementById('prod-playa').classList.toggle('kb-active', id === 'playa');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === 'w') setActive('work');
+  else if (k === 'p') setActive('playa');
+  else if (['1','2','3','4'].includes(k) && activeProduct) {
+    const btn = document.querySelectorAll('#sizes-' + activeProduct + ' .size-btn')[+k - 1];
+    if (btn) selectSize(activeProduct, btn);
+  }
+  else if (k === 'enter' && activeProduct) {
+    const sel = document.querySelector('#sizes-' + activeProduct + ' .size-btn.sel');
+    if (sel) addToCart(activeProduct, sel.textContent.trim());
+  }
+  else if (k === 'c') {
+    document.getElementById('cart-drawer').classList.contains('open') ? closeCart() : openCart();
+  }
+  else if (k === 'escape') closeCart();
+  else if (k === 'arrowright' && activeProduct) galleryNext(activeProduct);
+  else if (k === 'arrowleft' && activeProduct) galleryPrev(activeProduct);
+});
+
+/* ============ SYNCED VIDEO LOOPS ============ */
+/* Drop files at assets/work-loop.mp4 + assets/playa-loop.mp4 in the repo.
+   If a file is missing, that side falls back to the image gallery. */
+const VID_SRC = { work: 'assets/work-loop.mp4', playa: 'assets/playa-loop.mp4' };
+const vids = {};
+
+function initVideos() {
+  let pending = 2;
+  ['work','playa'].forEach(id => {
+    const v = document.getElementById('vid-' + id);
+    v.src = VID_SRC[id];
+    v.addEventListener('canplaythrough', () => {
+      vids[id] = v;
+      document.getElementById('gallery-' + id).classList.add('has-video');
+      if (--pending === 0) startSynced();
+    }, { once: true });
+    v.addEventListener('error', () => { if (--pending === 0) startSynced(); }, { once: true });
+  });
+}
+
+function startSynced() {
+  const list = Object.values(vids);
+  if (!list.length) return;
+  list.forEach(v => { v.currentTime = 0; v.play().catch(() => {}); });
+  if (list.length === 2) {
+    // drift correction — keep both loops locked together
+    setInterval(() => {
+      const [a, b] = list;
+      if (Math.abs(a.currentTime - b.currentTime) > 0.08) b.currentTime = a.currentTime;
+    }, 2000);
+  }
+}
+
+function selectSizeOld() {} /* removed */
+
+// Touch swipe
+['work','playa'].forEach(id => {
+  const el = document.getElementById('gallery-' + id);
+  let sx = 0;
+  el.addEventListener('touchstart', e => sx = e.touches[0].clientX);
+  el.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - sx;
+    if (dx < -40) galleryNext(id);
+    else if (dx > 40) galleryPrev(id);
+  });
+});
+
+buildGallery('work');
+buildGallery('playa');
+initStockLines();
+initVideos();
+renderCart();
+
+/* ---------- SIZE CHART (name + numbers) ----------
+   Garment measured flat, inches. EDIT to real specs before launch. */
 const MEASURES = {
   work: {
     "30": { "Waist": "31\"", "Front Rise": "11.5\"", "Thigh": "13\"",   "Inseam": "32\"", "Leg Opening": "9\""    },
@@ -369,83 +723,26 @@ const MEASURES = {
     "36": { "Waist": "37\"", "Front Rise": "12\"",   "Thigh": "13\"",   "Inseam": "33\"", "Leg Opening": "11.5\"" }
   }
 };
-
-const IMGS = {
-  work: ["assets/img_cc9faf10.jpg","assets/img_c02bf270.jpg","assets/img_874b547c.jpg","assets/img_4637cd2a.jpg","assets/img_4d805a22.jpg","assets/img_29d7d569.jpg","assets/img_91a6ab08.jpg"],
-  playa: ["assets/img_a2b3382c.jpg","assets/img_70fdb513.jpg","assets/img_01bdfc5f.jpg","assets/img_47740f63.jpg","assets/img_a4470a47.jpg"]
-};
-
-/* ---------- GALLERY ---------- */
-const gstate = { work: 0, playa: 0 };
-function buildGallery(id) {
-  const wrap = document.getElementById('gallery-' + id);
-  const dots = document.getElementById('dots-' + id);
-  IMGS[id].forEach((src, i) => {
-    const img = document.createElement('img');
-    img.src = src; img.loading = i === 0 ? 'eager' : 'lazy';
-    img.className = i === 0 ? 'active' : '';
-    wrap.insertBefore(img, wrap.querySelector('.img-arrows'));
-    const dot = document.createElement('button');
-    dot.className = 'img-dot' + (i === 0 ? ' active' : '');
-    dot.onclick = () => goTo(id, i);
-    dots.appendChild(dot);
-  });
-}
-function goTo(id, idx) {
-  const wrap = document.getElementById('gallery-' + id);
-  const imgs = wrap.querySelectorAll('img');
-  const dots = document.getElementById('dots-' + id).querySelectorAll('.img-dot');
-  imgs[gstate[id]].classList.remove('active');
-  dots[gstate[id]].classList.remove('active');
-  gstate[id] = idx;
-  imgs[gstate[id]].classList.add('active');
-  dots[gstate[id]].classList.add('active');
-}
-function galleryNext(id) { goTo(id, (gstate[id] + 1) % IMGS[id].length); }
-function galleryPrev(id) { goTo(id, (gstate[id] - 1 + IMGS[id].length) % IMGS[id].length); }
-['work','playa'].forEach(id => {
-  const el = document.getElementById('gallery-' + id);
-  let sx = 0;
-  el.addEventListener('touchstart', e => sx = e.touches[0].clientX, {passive:true});
-  el.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - sx;
-    if (dx < -40) galleryNext(id);
-    else if (dx > 40) galleryPrev(id);
-  });
-});
-buildGallery('work');
-buildGallery('playa');
-
-/* ---------- SIZE SELECT + POPUP ---------- */
-const selected = { work: null, playa: null };
+const PNAMES = { work: "Work Denim", playa: "Playa Denim" };
 
 function popHTML(id, size) {
   const m = MEASURES[id][size];
   let rows = '';
   for (const k in m) rows += '<tr><td>' + k + '</td><td>' + m[k] + '</td></tr>';
-  return '<div class="sp-title">' + NAMES[id] + ' — Size ' + size + '</div><table>' + rows + '</table>';
+  return '<div class="sp-title">' + PNAMES[id] + ' — Size ' + size + '</div><table>' + rows + '</table>';
 }
-
 ['work','playa'].forEach(id => {
   const pop = document.getElementById('pop-' + id);
   document.querySelectorAll('#sizes-' + id + ' .size-btn').forEach(btn => {
-    const size = btn.dataset.size;
+    const size = btn.textContent.trim();
     btn.addEventListener('mouseenter', () => {
+      if (!MEASURES[id][size]) return;
       pop.innerHTML = popHTML(id, size);
       pop.classList.add('show');
     });
     btn.addEventListener('mouseleave', () => pop.classList.remove('show'));
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#sizes-' + id + ' .size-btn').forEach(b => b.classList.remove('sel'));
-      btn.classList.add('sel');
-      selected[id] = size;
-      document.getElementById('atc-' + id).textContent = 'Add to Cart — Size ' + size;
-      if (window.MP3Sound) MP3Sound.tick();
-    });
   });
 });
-
-/* full chart toggle */
 function chartHTML(id) {
   const sizes = Object.keys(MEASURES[id]);
   const fields = Object.keys(MEASURES[id][sizes[0]]);
@@ -459,75 +756,8 @@ function toggleChart(id) {
   const el = document.getElementById('chart-' + id);
   if (!el.innerHTML) el.innerHTML = chartHTML(id);
   el.classList.toggle('open');
-  if (window.MP3Sound) MP3Sound.tick();
 }
 
-/* ---------- CART ---------- */
-let cart = [];
-try { cart = JSON.parse(localStorage.getItem('mp3-cart') || '[]'); } catch (e) { cart = []; }
-
-function saveCart() { localStorage.setItem('mp3-cart', JSON.stringify(cart)); }
-function cartCount() { return cart.reduce((n, i) => n + i.qty, 0); }
-
-function addToCart(id) {
-  const size = selected[id];
-  if (!size) {
-    const btn = document.getElementById('atc-' + id);
-    btn.textContent = 'Select a Size First';
-    setTimeout(() => btn.textContent = 'Select Size to Add to Cart', 1200);
-    return;
-  }
-  const vid = VARIANTS[id][size];
-  const ex = cart.find(i => i.variant === vid);
-  if (ex) ex.qty++;
-  else cart.push({ product: id, size: size, variant: vid, qty: 1 });
-  saveCart(); renderCart(); openCart();
-  if (window.MP3Sound) MP3Sound.scratch();
-}
-
-function renderCart() {
-  const list = document.getElementById('cart-items');
-  document.getElementById('nav-cart').textContent = 'Cart (' + cartCount() + ')';
-  if (!cart.length) {
-    list.innerHTML = '<div class="cart-empty">Cart is empty</div>';
-    document.getElementById('cart-total').textContent = '$0';
-    document.getElementById('btn-checkout').href = 'https://0hiuxa-fs.myshopify.com/cart';
-    return;
-  }
-  list.innerHTML = cart.map((i, idx) =>
-    '<div class="cart-item">' +
-      '<div><div class="ci-name">' + NAMES[i.product] + '</div><div class="ci-size">Size ' + i.size + ' · $' + PRICE + '</div></div>' +
-      '<div class="ci-qty">' +
-        '<button onclick="qty(' + idx + ',-1)">−</button><span>' + i.qty + '</span><button onclick="qty(' + idx + ',1)">+</button>' +
-        '<button class="ci-remove" onclick="removeItem(' + idx + ')">×</button>' +
-      '</div>' +
-    '</div>'
-  ).join('');
-  document.getElementById('cart-total').textContent = '$' + cart.reduce((n, i) => n + i.qty * PRICE, 0);
-  const permalink = 'https://0hiuxa-fs.myshopify.com/cart/' + cart.map(i => i.variant + ':' + i.qty).join(',');
-  document.getElementById('btn-checkout').href = permalink;
-}
-
-function qty(idx, d) {
-  cart[idx].qty += d;
-  if (cart[idx].qty <= 0) cart.splice(idx, 1);
-  saveCart(); renderCart();
-  if (window.MP3Sound) MP3Sound.tick();
-}
-function removeItem(idx) { cart.splice(idx, 1); saveCart(); renderCart(); }
-
-function openCart() {
-  document.getElementById('cart-drawer').classList.add('open');
-  document.getElementById('cart-overlay').classList.add('open');
-}
-function closeCart() {
-  document.getElementById('cart-drawer').classList.remove('open');
-  document.getElementById('cart-overlay').classList.remove('open');
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });
-
-renderCart();
 </script>
-<script src="assets/mp3-sound.js"></script>
 </body>
 </html>

@@ -457,7 +457,6 @@ function reveal(r, c) {
     el.classList.add('mine'); el.textContent = '✱';
     dead = true; clearInterval(timer);
     document.getElementById('mines-msg').textContent = 'Boom. ↺ to retry';
-    if (window.MP3Sound) MP3Sound.scratch();
     for (var rr = 0; rr < SIZE; rr++) for (var cc = 0; cc < SIZE; cc++) {
       if (grid[rr][cc].mine) {
         var e2 = document.getElementById('c' + rr + '_' + cc);
@@ -486,11 +485,9 @@ function flag(r, c) {
 
 function openMines() {
   document.getElementById('mines-pop').classList.add('open');
-  if (window.MP3Sound) MP3Sound.tick();
 }
 function closeMines() { document.getElementById('mines-pop').classList.remove('open'); }
 minesReset();
 </script>
-<script src="assets/mp3-sound.js"></script>
 </body>
 </html>
